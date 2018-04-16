@@ -3,19 +3,20 @@ package fb
 import (
 	"context"
 	"errors"
+	"html/template"
 
 	"cloud.google.com/go/firestore"
 )
 
 type Image struct {
-	Base64 string `firestore:"data"`
-	URL    string `firestore:"url"`
+	Base64 template.URL `firestore:"data"`
+	URL    string       `firestore:"url"`
 }
 
 type Content struct {
-	Title       string `firestore:"title"`
-	Name        string `firestore:"name"`
-	Description string `firestore:"desc"`
+	Title string        `firestore:"title"`
+	Name  string        `firestore:"name"`
+	Info  template.HTML `firestore:"desc"`
 }
 
 type Value struct {

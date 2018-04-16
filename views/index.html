@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ .Content.Title }}</title>
+
+  <style>
+    @media screen and (max-width: 768px){
+      body {
+        flex-direction: column;
+      }
+    }
+
+    :root {
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    body {
+      position: fixed;
+      display: flex;
+      box-sizing: border-box;
+      margin: 0;
+      
+      width: 100vw;
+      height: 100vh;
+
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      font-family: "Helvetica Neue", Helvetica, "Microsoft JhengHei", Arial, sans-serif;
+    }
+
+    .blur-sm {
+      filter: blur(0.8em);
+    }
+
+    .blur {
+      filter: blur(2em);
+    }
+
+    .circle {
+      border-radius: 50%;
+    }
+
+    .circle.clip {
+      overflow: hidden;
+      -webkit-mask-image: -webkit-radial-gradient(circle, white, black);
+    }
+
+    .fade {
+      transition: opacity 0.4s ease;
+    }
+
+    .filled {
+      position: absolute;
+      top:  -8%;
+      left: -8%;
+
+      width:  116%;
+      height: 116%;
+
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+
+      transform-origin: center;
+      transition: all 0.4s ease;
+
+      /* these fix the flickering on Safari */
+      -webkit-backface-visibility: hidden;
+      -webkit-transform: translateZ(0);
+    }
+
+    .invisible {
+      opacity: 0;
+    }
+
+    /* profile picture */
+    #avatar {
+      position: relative;
+      margin: 0 1.6em;
+      width:  12.8em;
+      height: 12.8em;
+      background-color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    #avatar-outer {
+      position: absolute;
+      top: 0.4em;
+      left: 0.4em;
+
+      width:  calc(100% - 0.8em);
+      height: calc(100% - 0.8em);
+      
+      background-color: white;
+      z-index: 20;
+    }
+
+    /* personal info */
+    #name {
+      margin-bottom: 0.4em;
+    }
+
+    #profile {
+      margin: 0 1.6em;
+      color: white;
+      text-align: center;
+      text-shadow: var(--shadow-sm);
+      z-index: 20;
+    }
+
+    .thin {
+      font-weight: 400;
+    }
+
+    /* social media links */
+    #links a {
+      margin: 0.5em;
+      font-size: 1.5em;
+      color: inherit;
+    }
+
+    /* copyright */
+    #copyright {
+      position: absolute;
+      bottom: 0;
+
+      font-size: 0.8em;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+    }
+
+    /* loading ring */
+    .loading {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .loading div {
+      position: absolute;
+      
+      width: 50%;
+      height: 100%;
+
+      background-color: #ff9800;
+      transform-origin: 100% 50%;
+      animation-duration: 2s;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    .loading .first {
+      animation-name: ring-f;
+    }
+
+    .loading .second {
+      animation-name: ring-s;
+    }
+
+    .loading div.cover {
+      background-color: white;
+      z-index: 5;
+      animation-name: ring-c;
+    }
+
+    /* loading ring animations */
+    @keyframes ring-f {
+      50%  {transform: rotate(360deg);}
+      100% {transform: rotate(360deg);}
+    }
+
+    @keyframes ring-s {
+      25%  {transform: rotate(180deg);}
+      50%  {transform: rotate(180deg);}
+      75%  {transform: rotate(360deg);}
+      100% {transform: rotate(360deg);}
+    }
+
+    @keyframes ring-c {
+      25%   {opacity: 1;}
+      25.1% {opacity: 0;}
+      50%   {transform: rotate(0);}
+      75%   {opacity: 0;}
+      75.1% {opacity: 1;}
+      100%  {transform: rotate(360deg);}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- background -->
+  <div id="back-real" class="blur-sm blur filled"></div>
+  <div id="back-mock" class="blur filled" style="background-image: url({{ .Background.Base64 }});"></div>
+
+  <!-- avatar -->
+  <div id="avatar" class="circle">
+
+    <!-- loading ring -->
+    <div class="circle clip fade loading">
+      <div class="first"></div>
+      <div class="second"></div>
+      <div class="cover"></div>
+    </div>
+
+    <!-- picture -->
+    <div id="avatar-outer" class="circle clip">
+      <div id="avatar-real" class="blur filled"></div>
+      <div id="avatar-mock" class="blur filled" style="background-image: url({{ .Avatar.Base64 }});"></div>
+    </div>
+  </div>
+
+  <!-- personal info -->
+  <div id="profile" class="fade invisible">
+    <h1  id="name">{{ .Content.Name }}</h1>
+    <div id="code" class="thin">@hunsin</div>
+    <h4  id="desc" class="thin">{{ .Content.Info }}</h4>
+
+    <!-- social media links -->
+    <div id="links">
+      <a target="_blank" href="https://github.com/Hunsin"><i class="fab fa-github"></i></a>
+      <a target="_blank" href="https://www.linkedin.com/in/hsiao-chieh-tsai"><i class="fab fa-linkedin"></i></a>
+      <a target="_blank" href="https://medium.com/@hunsin"><i class="fab fa-medium-m"></i></a>
+    </div>
+  </div>
+
+  <!-- copyright -->
+  <div id="copyright">
+    <div>Copyright © 2018 Tsai Hsiao Chieh. All Rights Reserved.</div>
+    <div>Icons are used under the&nbsp;<a href="https://fontawesome.com/license">license</a>.</div>
+  </div>
+
+  <script>
+    var avatar = new Image(),
+        back   = new Image(),
+        count  = 0;
+    
+    function load() {
+      count++;
+      if (count == 1) return; // there's more
+
+      var ar = document.getElementById("avatar-real"),
+          am = document.getElementById("avatar-mock"),
+          br = document.getElementById("back-real"),
+          bm = document.getElementById("back-mock");
+
+      // display avatar & background
+      ar.style.backgroundImage = "url(" + avatar.src + ")";
+      br.style.backgroundImage = "url(" +   back.src + ")";
+
+      am.classList.add("invisible");
+      bm.classList.add("invisible");
+      ar.classList.remove("blur");
+      br.classList.remove("blur");
+
+      // hide loading ring and show personal info
+      document.querySelector(".loading").classList.add("invisible");
+      document.getElementById("profile").classList.remove("invisible");
+    }
+    
+    avatar.onload = load;
+    back.onload   = load;
+
+    avatar.src = "{{ .Avatar.URL }}";
+    back.src   = "{{ .Background.URL }}";
+  </script>
+  <link rel="stylesheet" href="/public/css/fontawesome-all.min.css">
+</body>
+</html>

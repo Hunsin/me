@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"github.com/tdewolff/minify"
+	"github.com/tdewolff/minify/css"
 	"github.com/tdewolff/minify/html"
+	"github.com/tdewolff/minify/js"
 )
 
 func (s *Server) setView() *Server {
@@ -20,7 +22,9 @@ func (s *Server) setView() *Server {
 	}
 
 	m := minify.New()
+	m.AddFunc("text/css", css.Minify)
 	m.AddFunc("text/html", html.Minify)
+	m.AddFunc("text/javascript", js.Minify)
 
 	n, err := m.Bytes("text/html", b)
 	if err != nil {
