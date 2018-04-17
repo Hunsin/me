@@ -2,12 +2,15 @@ package fb
 
 import (
 	"context"
-	"log"
+	"errors"
+	"os"
 	"sync"
 	"time"
 
 	"cloud.google.com/go/firestore"
 	"firebase.google.com/go"
+	bv "github.com/Hunsin/beaver"
+	"google.golang.org/api/option"
 )
 
 type Model struct {
@@ -17,7 +20,12 @@ type Model struct {
 }
 
 func New() (*Model, error) {
-	a, err := firebase.NewApp(context.Background(), nil)
+	cred := os.Getenv("FIREBASE_CREDENTIAL_FILE")
+	if cred == "" {
+		return nil, errors.New(`fb: environment variable "FIREBASE_CREDENTIAL_FILE" not set`)
+	}
+
+	a, err := firebase.NewApp(context.Background(), nil, option.WithCredentialsFile(cred))
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +39,7 @@ func New() (*Model, error) {
 		for {
 			time.Sleep(time.Minute)
 			if err := m.update(); err != nil {
-				log.Panicln(err)
+				bv.Warn(err)
 			}
 		}
 	}()

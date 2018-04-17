@@ -20,9 +20,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
 }
 
-// New returns a pointer to an initialized Server. Environment variables
-// "ME_VIEW" and "ME_PUBLIC_DIR" must set before calling it.
-func New(m *fb.Model) *Server {
+// New returns a pointer to an initialized Server. Static files under
+// the dir is served under URL path "/public". The template will parse
+// the view file.
+func New(m *fb.Model, dir, view string) *Server {
 	if m == nil {
 		panic("server: A nil fb.Model is applied")
 	}
@@ -32,5 +33,5 @@ func New(m *fb.Model) *Server {
 		mdl: m,
 		tmp: template.New("view"),
 	}
-	return s.setMux().setView()
+	return s.setMux(dir).setView(view)
 }

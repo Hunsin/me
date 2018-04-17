@@ -8,6 +8,8 @@ import (
 	"cloud.google.com/go/firestore"
 )
 
+// An Image specifies the image URL and the base64 encoded placeholder
+// while downloading the file.
 type Image struct {
 	Base64 template.URL `firestore:"data"`
 	URL    string       `firestore:"url"`

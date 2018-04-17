@@ -5,12 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tdewolff/minify"
-	"github.com/tdewolff/minify/css"
-	"github.com/tdewolff/minify/html"
-	"github.com/tdewolff/minify/js"
+	bv "github.com/Hunsin/beaver"
 )
 
+// direct redirects the request to different languages depending on
+// header "Accept-Language".
 func direct(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
@@ -26,9 +25,12 @@ func direct(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/en", http.StatusFound)
 }
 
+// render renders the HTML page depending on different language
+// specified by request path.
 func (s *Server) render(w http.ResponseWriter, r *http.Request) {
 	if p, ok := w.(http.Pusher); ok {
-		p.Push("/static/style.css", &http.PushOptions{Method: "GET"})
+		p.Push("/public/css/fontawesome-all.min.css", &http.PushOptions{Method: "GET"})
+		p.Push("/public/webfonts/fa-brands-400.woff2", &http.PushOptions{Method: "GET"})
 	}
 
 	lang := r.URL.Path[1:]
@@ -39,29 +41,30 @@ func (s *Server) render(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.tmp.Execute(w, v)
+	if err = s.tmp.Execute(w, v); err != nil {
+		bv.Error(err)
+	}
 }
 
-func (s *Server) setMux() *Server {
-	static := os.Getenv("ME_PUBLIC_DIR")
-	if static == "" {
-		panic(`server: environment variable "ME_PUBLIC_DIR" not set`)
-	}
-
-	m := minify.New()
-	m.AddFunc("text/css", css.Minify)
-	m.AddFunc("text/html", html.Minify)
-	m.AddFunc("text/javascript", js.Minify)
-
-	fs := http.FileServer(http.Dir(static))
-
-	s.mux.Handle("/static/", http.StripPrefix("/static/", m.Middleware(fs)))
-
+// serMux initialize the s.mux. If pub is specified, it serves static
+// files in the directory under URL path "/public".
+func (s *Server) setMux(pub string) *Server {
 	s.mux.HandleFunc("/en", s.render)
 
 	s.mux.HandleFunc("/tw", s.render)
 
 	s.mux.HandleFunc("/", direct)
+
+	if pub != "" {
+		if info, err := os.Stat(pub); err != nil {
+			panic(err)
+		} else if !info.IsDir() {
+			panic(`server: pub must be a directory`)
+		}
+
+		fs := http.FileServer(http.Dir(pub))
+		s.mux.Handle("/public/", http.StripPrefix("/public/", fs))
+	}
 
 	return s
 }

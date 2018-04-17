@@ -2,7 +2,6 @@ package server
 
 import (
 	"io/ioutil"
-	"os"
 
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"
@@ -10,10 +9,10 @@ import (
 	"github.com/tdewolff/minify/js"
 )
 
-func (s *Server) setView() *Server {
-	v := os.Getenv("ME_VIEW")
+// setView minifies the file v and parses the template.
+func (s *Server) setView(v string) *Server {
 	if v == "" {
-		panic(`server: environment variable "ME_VIEW" not set`)
+		panic(`server: view file must provided`)
 	}
 
 	b, err := ioutil.ReadFile(v)
