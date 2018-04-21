@@ -36,6 +36,7 @@ func (m *Model) update() error {
 	if err != nil {
 		return err
 	}
+	defer c.Close()
 
 	d, err := c.Collection("render").Documents(ctx).GetAll()
 	if err != nil {
